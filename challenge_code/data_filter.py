@@ -10,7 +10,7 @@ from utils import get_logger
 #initializing the logger
 logger = get_logger('data_filter')
 
-def clean_data(date=list[int]) -> pd.DataFrame:
+def clean_data(date:list[int] = None) -> pd.DataFrame:
     '''
     - data = date of the data to update in a list 
             like ['2020', 1, 02] as [year, month, day]

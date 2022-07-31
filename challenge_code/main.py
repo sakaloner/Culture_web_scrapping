@@ -6,8 +6,6 @@ from web_data import get_web_data
 from utils import get_logger
 
 
-### making sure we are in the right pwd
-os.chdir('/home/andres/coding/challenge')
 ### Initializing the logger
 logger = get_logger('main')
 

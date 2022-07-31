@@ -22,6 +22,15 @@ def upload_to_database(df_pairings):
     '''
     Now we will export the dataframe info to the sql server in docker.
     '''
+    ### Make sure the tables are empty before populating them
+    with engine.connect() as con:
+        con.execute('DELETE FROM categoria_provincial_total')
+        con.execute('DELETE FROM categoria_total')
+        con.execute('DELETE FROM cines')
+        con.execute('DELETE FROM fuentes_total')
+        con.execute('DELETE FROM registros_combi')
+
+
     ### add a time stamp to all the dataframes
     ### Table - Datafram pairing
     for value in df_pairings.values():
@@ -33,3 +42,4 @@ def upload_to_database(df_pairings):
         logger.info(f'{table} populated')
 
     logger.info('Uploaded to database')
+
