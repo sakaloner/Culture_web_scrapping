@@ -11,7 +11,7 @@ logger = get_logger('main')
 
 if __name__ == '__main__':
     logger.info('Starting the program')
-    #get_web_data()
+    get_web_data()
     logger.info('Finished getting web data')
     df_cleaned = clean_data()
     logger.info('Finished cleaning data')
