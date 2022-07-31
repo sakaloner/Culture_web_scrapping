@@ -1,12 +1,20 @@
+from datetime import datetime
+from pathlib import Path
+
 import pandas as pd
-from datetime import datetime as dt
+
 from utils import get_logger
+
+
 
 #initializing the logger
 logger = get_logger('data_filter')
 
-def clean_data(nombres_de_archivos: list[str]) -> pd.DataFrame:
+def clean_data(date=list[int]) -> pd.DataFrame:
     '''
+    - data = date of the data to update in a list 
+            like ['2020', 1, 02] as [year, month, day]
+            the default is the current date
     Cleaning each dataframe before merging.
     we will keep the attribute 'fuente' to created the computed
     tables with it but well make sure to erase it after merging
@@ -29,13 +37,25 @@ def clean_data(nombres_de_archivos: list[str]) -> pd.DataFrame:
                 'mail',
                 'web',
                 'fuente']
-        df.columns = [new_columns]
+        df.columns = new_columns
 
-    ### loading the files
-    file_name = 'museos/2022-07/26-07-2022.csv' 
-    df_museos = pd.read_csv(file_name)
-    df_cines = pd.read_csv('cines/2022-07/26-07-2022.csv')
-    df_bib = pd.read_csv('bibliotecas/2022-07/26-07-2022.csv')
+
+    ### default is the current date to clean the data and upload 
+    ### to the database since database.py depends from the return
+    ### of this function
+    if date is None:
+        time_now = datetime.now()       
+        subfolder = datetime.strftime(time_now, "%Y-%m")
+        file_name_time = datetime.strftime(time_now, "%d-%m-%Y")
+    else:
+        date_str = [str(x) for x in date]
+        subfolder = date_str[0]+'-'+date_str[1]
+        file_name_time = date_str[2]+'-'+date_str[1]+'-'+date_str[0]
+
+    logger.info('Loading files')
+    df_museos = pd.read_csv(Path('data_csv/museos/'+ subfolder+'/' + file_name_time + '.csv'))
+    df_cines = pd.read_csv(Path('data_csv/salas de cine/'+ subfolder+'/' + file_name_time + '.csv'))
+    df_bib = pd.read_csv(Path('data_csv/bibliotecas/'+ subfolder+'/' + file_name_time +'.csv'))
     logger.info('Finished loading files into DataFrames')
 
     ## Deleting the columns we dont need from the dataframes
@@ -49,11 +69,12 @@ def clean_data(nombres_de_archivos: list[str]) -> pd.DataFrame:
         [3,5,7,11,13,17,18,19,20,22,23,24]
         ], axis=1, inplace=True)
 
-    ## renaming the columns of the dataframse 
+    ## renaming the columns of the dataframse
     rename_columns(df_museos)
     rename_columns(df_cines)
     rename_columns(df_bib)
-    logger.info('Finished deleting homogenizing the dataframes')
+    logger.info('Finished homogenizing the dataframes')
+    
 
     ###### First type of Table ########
     ### Concatenating the cleaned dataframes into an uniform single one
@@ -66,6 +87,7 @@ def clean_data(nombres_de_archivos: list[str]) -> pd.DataFrame:
     The challenge info said it was one table but it makes more 
     sense like this in my humble opinion :).
     '''
+    print(df_combi.head(10))
     df_cat_total = df_combi.groupby('categoria', as_index=False)['cod_localidad'].count()
     df_cat_total.columns = ['categoria', 'total']
     df_fuente_total = df_combi.groupby('fuente', as_index=False )['cod_localidad'].count()
@@ -84,7 +106,7 @@ def clean_data(nombres_de_archivos: list[str]) -> pd.DataFrame:
     # using the group by to answear some questions about cinemas 
     # in Argentina
 
-    df_cines2 = pd.read_csv('cines/2022-07/26-07-2022.csv')
+    df_cines2 = pd.read_csv('data_csv/salas de cine/'+ subfolder+'/' + file_name_time + '.csv')
     df_comp = df_cines2.groupby('Provincia', as_index=False)['Pantallas','Butacas', 'espacio_INCAA'].sum()
     df_comp['espacio_INCAA'] = df_cines2.groupby('Provincia', as_index=False)['espacio_INCAA'].count()['espacio_INCAA']
     ### rename columns to fit the sql table
@@ -101,3 +123,6 @@ def clean_data(nombres_de_archivos: list[str]) -> pd.DataFrame:
     }
     logger.info('Finished cleaning data :)')
     return df_pairings
+
+if __name__ == '__main__':
+    clean_data()

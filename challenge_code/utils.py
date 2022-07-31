@@ -1,14 +1,31 @@
-import coloredlogs, logging
 from bs4 import BeautifulSoup as bs
-from web_data import try_response
+import requests, coloredlogs, logging
+
 
 def get_logger(name):
     ''' logger function with colors from coloredlogs'''
-    logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
+    logging.basicConfig(encoding='utf-8', level=logging.INFO)
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     coloredlogs.install(fmt='%(asctime)s,%(msecs)03d %(levelname)s %(message)s', level='DEBUG', logger=logger)
     return logger
+
+logger =  get_logger('utils')
+
+def try_response(url):
+    '''
+    try to get the response from the url
+    '''
+    logger.info(f'Trying to get response from {url}')
+    try:    
+        response = requests.get(url)
+        # If the response was successful, no Exception will be raised
+        response.raise_for_status
+        logger.info(f'{url} downloaded')
+        return response
+    except Exception as err:
+        logger.exception(f'{url} not downloaded because {err}')
+        exit()
 
 
 def find_urls_from_html(url_dict):

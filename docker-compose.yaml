@@ -4,11 +4,11 @@ services:
     image: postgres
     restart: always
     environment:
-      - POSTGRES_USER=docker
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_DB=challenge_db 
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=challenge_db
     ports:
-      - '5432:5432'
+      - '${PORT_DB}:5432'
     volumes:
       - db:/var/lib/postgresql/data
       - ./script_db:/docker-entrypoint-initdb.d
@@ -18,7 +18,7 @@ services:
     depends_on:
       - db
     ports: 
-      - '8080:8080'
+      - '${PORT_UI_DB}:8080'
 volumes:
   db:
     driver: local
