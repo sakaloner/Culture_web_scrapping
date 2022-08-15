@@ -1,5 +1,6 @@
 This is a python project that consists of scripts to download and save
-the content of several csv files from a webpage to a local posgtresql 
+the content of several csv files from a webpage, containing the location
+of the cinemas, libraries and theaters in argentina, to a local posgtresql 
 database.
 
 ###
